@@ -1,0 +1,5 @@
+1. To setup up the Database in its initial state run InitialDB_Setup.sql on your SQL Server. This will setup the database containing the raw Marketing Data Table as imported from the .csv
+2. Run Stored Procedure [dbo].[CleanMarketingTable] to clean the raw data and to create the dbo.marketing_data_prepared table and
+   VAmountSpentByProduct view.
+3. Connect Power BI to the SQL Server database. The Power BI reports queries the above view and marketing_data_prepared table.
+
