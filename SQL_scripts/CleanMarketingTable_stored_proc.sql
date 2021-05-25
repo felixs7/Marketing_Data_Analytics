@@ -6,10 +6,10 @@ SET NOCOUNT ON
 IF OBJECT_ID('dbo.marketing_data_prepared', 'U') IS NOT NULL 
   DROP TABLE dbo.marketing_data_prepared; 
 
--- Copy existing table - indexes and keys are lost in this stage but that's okay in that particular scenario
+-- Copy existing table and clean raw data
 SELECT [ID]
       ,[Year_Birth]
-	  ,YEAR(GETDATE()) - [Year_Birth] as Age -- This is not the exact age as we have no day and month data but it solves the purpose here
+      ,YEAR(GETDATE()) - [Year_Birth] as Age -- This is not the exact age as we have no day and month data but it solves the purpose here
       ,[Education]
       ,[Marital_Status]
       , CAST(ISNULL(REPLACE(REPLACE([Income], '$', ''),',',''), '0') AS decimal(15,2)) as Income
@@ -18,11 +18,11 @@ SELECT [ID]
       ,CONVERT(DATETIME,[Dt_Customer],23) as Dt_Customer
       ,[Recency]
       ,CAST([MntWines] AS int) as [MntWines]
-      ,CAST([MntFruits] AS int)  as [MntFruits]
-      ,CAST([MntMeatProducts] AS int)   as [MntMeatProducts]
-      ,CAST([MntFishProducts] AS int)  as [MntFishProducts]
-      ,CAST([MntSweetProducts] AS int)  as [MntSweetProducts]
-      ,CAST([MntGoldProds] AS int)  as [MntGoldProds]
+      ,CAST([MntFruits] AS int) as [MntFruits]
+      ,CAST([MntMeatProducts] AS int) as [MntMeatProducts]
+      ,CAST([MntFishProducts] AS int) as [MntFishProducts]
+      ,CAST([MntSweetProducts] AS int) as [MntSweetProducts]
+      ,CAST([MntGoldProds] AS int) as [MntGoldProds]
       ,[NumDealsPurchases]
       ,[NumWebPurchases]
       ,[NumCatalogPurchases]
@@ -36,8 +36,8 @@ SELECT [ID]
       ,[Response]
       ,[Complain]
       ,[Country]
-	  , [MntWines] + [MntFruits] + [MntMeatProducts] + [MntFishProducts] + [MntSweetProducts] + [MntGoldProds] as TotalAmountSpent
-	  , [Kidhome] + [Teenhome] as TotalKids
+      ,[MntWines] + [MntFruits] + [MntMeatProducts] + [MntFishProducts] + [MntSweetProducts] + [MntGoldProds] as TotalAmountSpent
+      ,[Kidhome] + [Teenhome] as TotalKids
 INTO marketing_data_prepared
 FROM [marketing_data]
 
@@ -57,9 +57,10 @@ UPDATE marketing_data_prepared
 SET [Year_Birth] = @median_birthyear
 WHERE  [Year_Birth] < 1900
 
-
--- create a view to analyse bought products by category. Amount spent on each category is currently pivoted.
--- Unpivot here to simplify subsequent analysis. We need to use dynamic SQL here to drop and create these views.
+/*
+Create a view to analyse products by category. Amount spent on each category is currently pivoted.
+Unpivot here to simplify subsequent analysis. We need to use dynamic SQL here to drop and create these views 
+as usually these views must be the first statement in a T-SQL batch. */
 
 exec('
 IF OBJECT_ID(''dbo.VAmountSpentByProduct'', ''v'') IS NOT NULL 
