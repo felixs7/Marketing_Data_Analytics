@@ -1,4 +1,4 @@
-# Marketing_Data_Analytics
+# Marketing Analytics Demo Project
 Demo Project aiming to descriptively  analyse marketing data for a fictitious company. 
 Project contains a single, relatively clean dataset that is stored in a SQL database. A stored procedure can be run to clean the raw data and to create the required views.
 Power BI is then used to connect to the SQL database and to create basic visualisation to analyse
